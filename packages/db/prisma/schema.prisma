@@ -1,3 +1,9 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,52 +17,67 @@ model User {
   id       String  @id @unique @default(cuid())
   email    String  @unique
   password String
-  AvatarId String?
+  avatarId String?
   role     Role
+  spaces   Space[]
+  avatar   Avatar? @relation(fields: [avatarId], references: [id])
+}
+
+model Element {
+  id       String         @id @unique @default(cuid())
+  width    Int
+  height   Int
+  imageUrl String
+  static   Boolean
+  spaces   SpaceElement[]
+  maps     MapElement[]
 }
 
 model Space {
-  id        String  @id @unique @default(cuid())
-  name      String
+  id        String         @id @unique @default(cuid())
+  height    Int
   width     Int
-  height    Int?
+  name      String
   thumbnail String?
+  creator   User           @relation(fields: [creatorid], references: [id])
+  creatorid String
+  elements  SpaceElement[]
+}
+
+model SpaceElement {
+  id        String  @id @unique @default(cuid())
+  x         Int
+  y         Int
+  spaceid   String
+  elementid String
+  space     Space   @relation(fields: [spaceid], references: [id])
+  element   Element @relation(fields: [elementid], references: [id])
 }
 
 model Avatar {
   id       String  @id @unique @default(cuid())
   name     String?
-  imageurl String?
+  imageUrl String?
+  user     User[]
 }
 
 model Map {
-  id     String @id @unique @default(cuid())
-  width  Int
-  height Int
-  name   String
-}
-
-model SpaceElement {
-  id        String @id @unique @default(cuid())
-  elementId String
-  spaceId   String
-  x         Int
-  y         Int
-}
-
-model Element {
-  id       String @id @unique @default(cuid())
-  height   Int
-  width    Int
-  imageurl String
+  id          String       @id @unique @default(cuid())
+  name        String
+  height      Int
+  widht       Int
+  thumbnail   String
+  mapelements MapElement[]
 }
 
 model MapElement {
   id        String  @id @unique @default(cuid())
-  elementid String?
-  mapId     String
-  x         Int
-  y         Int
+  x         Int?
+  y         Int?
+  elementid String
+  mapid     String
+  map       Map     @relation(fields: [mapid], references: [id])
+  element   Element @relation(fields: [elementid], references: [id])
 }
 
 enum Role {
