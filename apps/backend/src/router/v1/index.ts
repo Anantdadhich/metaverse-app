@@ -1,16 +1,32 @@
 import { Router } from "express";
-import db from "@repo/db/src/index"
 import { userrouter } from "./user";
 import { spacerouter } from "./space";
 import { adminrouter } from "./admin";
+import { signupschema } from "../../types/types";
+import { hash } from "../../scryptalgo";
+
 
   
 export const router=Router();
 
 router.post("/signup",async (req,res)=>{
-   const email=req.query;
-   const password=req.query;
-    
+ 
+   const parseddata=signupschema.safeParse(req.body)
+
+   if(!parseddata.success   ) {
+       console.log("parse data incorrect") 
+       res.status(400).json({message:"validation failed"}) 
+       return  
+   } 
+
+const hashedpadssword=await hash(parseddata.data.password)
+
+
+  try {
+   
+  } catch (error) {
+   
+  }
    
    
    
