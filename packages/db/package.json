@@ -6,7 +6,7 @@
      "build":"tsc -b"
   },
   "exports": {
-   "./client": "./src/index.ts"
+   "./client": "./index.ts"
 
   },
   "keywords": [],
