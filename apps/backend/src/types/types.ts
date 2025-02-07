@@ -12,5 +12,22 @@ export const signinschema=z.object({
     password:z.string()
 })
 
+export const CreateSpaceSchema=z.object({
+    name:z.string(),
+    dimensions:z.string().regex(/^[0-9]{1,4}x[0-9]{1,4}$/),
+    mapId:z.string().optional(),
+
+})
 
 
+export const createElementSchema=z.object({
+      imageurl:z.string(),
+      width:z.number(),
+      height:z.number(),
+      static:z.boolean(),
+})
+
+
+export const MetaDataSchema=z.object({
+    avatarId:z.string()
+})

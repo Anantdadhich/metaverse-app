@@ -99,11 +99,31 @@ router.post("/signin",async(req,res)=>{
 
 })
 
-router.post("/user",(req,res)=>{ 
+router.post("/elements",async (req,res)=>{ 
+const elements=await client.element.findMany()
+
+res.json({elements:elements.map(e => ({
+    id:e.id,
+    imageUrl:e.imageUrl,
+    heigth:e.height,
+    width:e.width,
+    static:e.static
+}))})
+
 })
 
 
-router.post("/avatar",(req,res)=>{
+router.post("/avatar",async(req,res)=>{
+   const avatars=await client.avatar.findMany();
+   
+    res.json({
+      avatars: avatars.map(e =>({
+        id:e.id,
+        imageUrl:e.imageUrl,
+        name:e.name
+      }))
+    })
+
 
 })
 
