@@ -1,6 +1,8 @@
 import { NextFunction,Request,Response } from "express"
 import jwt from "jsonwebtoken"
 import { JWT_PASSWORD } from "../config";
+import { adminrouter } from "../router/v1/admin";
+import { updateElementSchema } from "../types/types";
 
 
 
@@ -21,7 +23,7 @@ export const adminmiddleware=(req:Request,res:Response,next:NextFunction)=>{
             res.status(403).json({message:"unauuthori"})
             return
         }
-
+         //@ts-ignore
         req.userId=decoded.useId
         next()
 
@@ -30,3 +32,4 @@ export const adminmiddleware=(req:Request,res:Response,next:NextFunction)=>{
             return
     }
 }
+

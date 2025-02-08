@@ -1,4 +1,4 @@
-import { error } from 'node:console';
+
 import { randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
 
 

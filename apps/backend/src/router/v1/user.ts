@@ -30,3 +30,30 @@ userrouter.post("/metadata",usermiddleware,async (req,res)=>{
         res.status(400).json({message:"internal server erorr "})
     }
 })
+
+userrouter.post("/metadata/bulk",async (req,res)=>{
+
+   
+    const useIdString=(req.query.ids ?? "[]") as string  
+    const userids=(useIdString).slice(1,useIdString?.length-1).split("");
+
+    console.log(userids);
+    const metadata=await client.user.findMany({
+        where:{
+            id:{
+                in:userids
+            }
+        },select:{
+            avatar:true,
+            avatarId:true
+        }
+    })
+
+    res.json({
+        avatars:metadata.map( m => ({
+            userId:m.avatarId,
+           avatarid:m.avatar?.imageUrl 
+        }))
+    })
+   
+})
