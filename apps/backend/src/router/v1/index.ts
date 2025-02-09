@@ -5,7 +5,7 @@ import { adminrouter } from "./admin";
 import { signinschema, signupschema } from "../../types/types";
 import { compare, hash } from "../../scryptalgo";
 import jwt from "jsonwebtoken"
-import client from "@repo/db"
+import client from "@repo/db/client"
 import { JWT_PASSWORD } from "../../config";
 
   

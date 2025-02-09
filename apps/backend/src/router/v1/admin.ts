@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { createavatartSchema, createElementSchema, createmapSchema, updateElementSchema } from "../../types/types";
-import client from "@repo/db"
+import client from "@repo/db/client"
 
 export const adminrouter=Router()
 

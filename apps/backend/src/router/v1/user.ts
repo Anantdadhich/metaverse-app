@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { usermiddleware } from "../../middleware/user";
 import { MetaDataSchema } from "../../types/types";
-import client from "@repo/db"
+import client from "@repo/db/client"
 
 export const userrouter=Router()
 
