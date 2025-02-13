@@ -1,3 +1,4 @@
+import { OutgoingMessage } from "./data";
 import { User } from "./User";
 
 
@@ -40,7 +41,18 @@ export class RoomManager {
         this.rooms.set(spaceId,(this.rooms.get(spaceId)?.filter((u)=> u.id !== user.id) ?? []))
 
         }     
-     
+        
+        public brodcast(message:OutgoingMessage,user:User,roomId:string){
+            if (!this.rooms.has(roomId)){
+                return
+            }
+
+            this.rooms.get(roomId)?.forEach((u)=>{
+                if(u.id !== user.id){
+                    u.send(message);
+                }
+            })
+        }
         
        
 

@@ -1,7 +1,8 @@
 import { WebSocket } from "ws";
 import jwt ,{JwtPayload}  from "jsonwebtoken"
-import { JWT_PASSWORD } from "./data";
+import { JWT_PASSWORD, OutgoingMessage } from "./data";
 import client from "@repo/db/client"
+import { RoomManager } from "./Roommanager";
 
   
 function getRandomString(length:number){
@@ -77,9 +78,81 @@ export class User {
                
                this.x=Math.floor(Math.random() * space?.width)
                this.y=Math.floor(Math.random() *space?.height)
-                  
-               
+                
+               RoomManager.getInstance().addUser(spaceId,this);
+             this.send({
+                type:"space-joined",
+                payload:{
+                    spawn:{
+                        x:this.x,
+                        y:this.y
+                    },
+                    users:RoomManager.getInstance().rooms.get(spaceId)?.filter(x=>x.id !== this.id).map((u)=> ({
+                        id:u.id
+                    })) ?? []
+                }
+             });
+
+             console.log("join recieved 5");
+             RoomManager.getInstance().brodcast({
+                type:"user-joined",
+                 payload:{
+                    userId:this.userId,
+                    x:this.x,
+                    y:this.y
+                 }
+             },this,this.spaceId!)
+                
+
+             break;
+             
+         case "move": 
+         const movex=parsedData.payload.x;
+         const movey=parsedData.payload.y;
+         
+         
+         const xDisplacement=Math.abs(this.x - movex);
+         const yDispacement=Math.abs(this.y -movey)
+
+
+         if( (xDisplacement ==1 && yDispacement==0) || (xDisplacement ==0 && yDispacement==1)) {
+            this.x=movex;
+            this.y=movey
+
+
+            RoomManager.getInstance().brodcast({
+                type:"movement",
+                payload:{
+                    x:this.x,
+                    y:this.y
+                }
+            },this,this.spaceId!);
+            return
+         }
+
+
+         this.send({
+            type:"movement-rejected",
+            payload:{
+                x:this.x,
+                y:this.y
+            }
+         })
            }
        })
     }
+    destroy(){
+    RoomManager.getInstance().brodcast({
+          type:"user-left",
+          payload:{
+            userId:this.userId
+          }
+    },this,this.spaceId!);
+
+    RoomManager.getInstance().removeuser(this,this.spaceId !);
 }
+send(payload:OutgoingMessage){
+      this.ws.send(JSON.stringify(payload))
+}
+}
+ 
