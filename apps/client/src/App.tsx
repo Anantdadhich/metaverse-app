@@ -1,3 +1,4 @@
+import { Room } from "./Components/Room"
 
 
 function App() {
@@ -5,9 +6,7 @@ function App() {
 
   return (
     <>
-     <div className="text-3xl font-bold">
-
-     </div>
+    <Room></Room>
       
     </>
   )

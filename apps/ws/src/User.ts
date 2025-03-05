@@ -44,6 +44,12 @@ export class User {
              case "join": 
               const spaceId=parsedData.payload.spaceId;
               const token=parsedData.payload.token;
+                
+              if(!token){
+                     console.log("Token is missing ")
+                     this.ws.close();
+                     return 
+              }
 
               const userId=(jwt.verify(token,JWT_PASSWORD)as JwtPayload).userId 
 

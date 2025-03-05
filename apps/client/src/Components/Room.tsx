@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { WebSocket } from "ws";
+
 
 
 
@@ -12,9 +12,10 @@ export const Room =() =>{
 
     const canavsRef=useRef<any>(null);
     const [params,setParams]=useState({token:" ",spaceId:" "});
+    
+    
 
-
-
+      
     //websocket initalize   
     useEffect(()=>{
         const urlParams=new URLSearchParams(window.location.search);
@@ -36,6 +37,7 @@ export const Room =() =>{
 
         wsRef.current.onmessage=(event:any) =>{
             const message=JSON.parse(event.data);
+            handleWebSocketMessage(message);
         
         }
        
@@ -101,17 +103,155 @@ export const Room =() =>{
                     }
                     return newUsers
                 })
+                break; 
+
+                case 'movement': 
+                setUsers(prev  =>  {
+                      const newusers=new Map(prev);
+                       const user=newusers.get(message.payload.userId) ;
+                       if (user) {
+                        user.x=message.payload.x;
+                        user.y=message.payload.y;
+                        newusers.set(message.payload.userId,user)
+                       }
+
+                      return newusers
+                }) ;
+                break;
+                case 'movement-rejected':
+                    setcurrentUser((prev:any) => ({
+                        ...prev,
+                        x:message.payload.x ,
+                        y:message.payload.y
+                    }));
+                    break;
+
+                    case 'user-left' : 
+                    setUsers(prev => {
+                        const newusers=new Map(prev);
+                        newusers.delete(message.payload.userId);
+                        return  newusers 
+                    });
+                    break;
+
+
                 
 
         }
     } 
 
 
+    const handleMove=(newX:any ,newY:any )=>{
+           if(!currentUser) return  
+
+           wsRef.current.send(JSON.stringify({
+            type:"move",
+            payload:{
+                x:newX,
+                y:newY,
+                userId:currentUser.userId
+            
+            }
+           })) ;
+    } ;
+
+    useEffect(()=>{
+        console.log("render") 
+        const canvas=canavsRef.current; 
+        if(!canvas) return
+        console.log("below render") 
+
+        const ctx=canvas.getContext('2d');
+        ctx.clearRect(0,0,canvas.width,canvas.height); 
+
+
+        ctx.strokeStyle='#eee' 
+
+        for (let i=0;i<canvas.width ;i +=50){
+            ctx.beginPath();
+            ctx.moveTo(i,0);
+            ctx.lineTo(canvas.width,i);
+            ctx.stroke() ;
+        }
+
+        console.log("before current ") 
+        console.log(currentUser) 
+
+        if(currentUser && currentUser.x) {
+            console.log("draw myse")
+            console.log(currentUser) 
+
+            ctx.beginPath() ;
+            ctx.fillStyle='#FF6B6B';
+            ctx.arc(currentUser.x* 50 ,currentUser.y*50 ,20,0, Math.PI *2) ;
+            ctx.fill();
+            ctx.fillStyle='#000';
+            ctx.font='14px Arial';
+            ctx.textAlign='center';
+            ctx.fillText('You',currentUser.x *50 ,currentUser.y * 50 + 40);
+        }
+
+
+        users.forEach(user =>{
+            if(!user.x) {
+                return
+            }
+           console.log("drawing other user")
+    console.log(user)
+      ctx.beginPath();
+      ctx.fillStyle = '#4ECDC4';
+      ctx.arc(user.x * 50, user.y * 50, 20, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#000';
+      ctx.font = '14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(`User ${user.userId}`, user.x * 50, user.y * 50 + 40);
+
+        })
+    },[currentUser,users])
+
+  const handleKeyDown=(e:any) =>{
+    if(!currentUser) return  
+
+    const {x,y}=currentUser;  
+    switch (e.key) {
+        case 'ArrowUp':
+             handleMove(x,y-1);
+             break;
+         case 'ArrowDown' :
+            handleMove(x,y+1)  ;
+            break;
+        case 'ArrowLeft' : 
+            handleMove(x-1,y);
+            break; 
+            case 'ArrowRight' :
+                handleMove(x+1,y) ;
+                break;     
+    }
+
+  }; 
+
 
     return (
-        <div>
-        
-        
+        <div className="p-4" onKeyDown={handleKeyDown} tabIndex={0}>
+           <h1 className="text-2xl font-bold mb-4">Space </h1>
+
+               <div className="mb-4">
+                <p className="text-sm text-gray-800">Token {params.token}</p>
+                <p className="text-sm text-gray-800">space id {params.spaceId}</p> 
+                <p className="text-sm text-gray-800">connected user {users.size + (currentUser ? 1 : 0)} </p>
+                </div>     
+                <div>
+                    <canvas
+                    ref={canavsRef}
+                    width={2000}
+                    height={2000} 
+                    className="bg-white"
+                    >
+
+                    </canvas>
+                    <p className="text-sm text-gray-800">arrow key to move the user </p>
+                    </div>   
         </div>
     )
 }
