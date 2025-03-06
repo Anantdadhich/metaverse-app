@@ -3,7 +3,6 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -39,8 +38,8 @@ model Space {
   width     Int
   name      String
   thumbnail String?
-  creator   User           @relation(fields: [creatorid], references: [id])
-  creatorid String
+  creator   User           @relation(fields: [creatorId], references: [id])
+  creatorId String
   elements  SpaceElement[]
 }
 
@@ -48,10 +47,10 @@ model SpaceElement {
   id        String  @id @unique @default(cuid())
   x         Int
   y         Int
-  spaceid   String
-  elementid String
-  space     Space   @relation(fields: [spaceid], references: [id])
-  element   Element @relation(fields: [elementid], references: [id])
+  spaceId   String
+  elementId String
+  space     Space   @relation(fields: [spaceId], references: [id])
+  element   Element @relation(fields: [elementId], references: [id])
 }
 
 model Avatar {
@@ -65,7 +64,7 @@ model Map {
   id          String       @id @unique @default(cuid())
   name        String
   height      Int
-  widht       Int
+  width       Int
   thumbnail   String
   mapelements MapElement[]
 }
@@ -74,10 +73,10 @@ model MapElement {
   id        String  @id @unique @default(cuid())
   x         Int?
   y         Int?
-  elementid String
-  mapid     String
-  map       Map     @relation(fields: [mapid], references: [id])
-  element   Element @relation(fields: [elementid], references: [id])
+  elementId String
+  mapId     String
+  map       Map     @relation(fields: [mapId], references: [id])
+  element   Element @relation(fields: [elementId], references: [id])
 }
 
 enum Role {

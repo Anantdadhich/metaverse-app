@@ -22,8 +22,8 @@ spacerouter.post("/",usermiddleware,async(req,res)=>{
                 name:parsedData.data.name,
                 width:parseInt(parsedData.data.dimensions.split("x")[0]),
                 height:parseInt(parsedData.data.dimensions.split("x")[1]),
-                //@ts-ignore
-                creatorid:req.userId!
+               
+                creatorId:req.userId!
               }
         })
 
@@ -36,7 +36,7 @@ spacerouter.post("/",usermiddleware,async(req,res)=>{
         },select:{
             mapelements:true,
             height:true,
-            widht:true
+            width:true
         }
      })
 
@@ -55,18 +55,18 @@ spacerouter.post("/",usermiddleware,async(req,res)=>{
         const space=await client.space.create({
             data:{
               name:parsedData.data.name,
-              width:map.widht,
+              width:map.width,
               height:map.height,
-              //@ts-ignore
-              creatorid:req.userId!,
+      
+              creatorId:req.userId!,
               
             }
         });
 
         await client.spaceElement.createMany({
             data:map.mapelements.map(e => ({
-              spaceid:space.id,
-              elementid:e.elementid,
+              spaceId:space.id,
+              elementId:e.elementId,
               x:e.x!,
               y:e.y!
             }))
@@ -97,8 +97,8 @@ spacerouter.delete("/element",usermiddleware,async (req,res)=>{
       })
 
       console.log(spaceElement?.space)
-        //@ts-ignore
-      if(!spaceElement?.space.creatorid || spaceElement.space.creatorid !==req.userid){
+      
+      if(!spaceElement?.space.creatorId || spaceElement.space.creatorId !==req.userId){
         res.status(403).json({message:"unauth"})
         return 
       }
@@ -118,7 +118,7 @@ spacerouter.delete("/:spaceId",usermiddleware,async (req,res)=>{
       where:{
         id:req.params.spaceId
       },select:{
-        creatorid:true
+        creatorId:true
       }
      })
 
@@ -126,8 +126,8 @@ spacerouter.delete("/:spaceId",usermiddleware,async (req,res)=>{
       res.status(400).json({message:"Space not found"})
       return 
      }
-       //@ts-ignore
-     if(space.creatorid !==req.userId){
+       
+     if(space.creatorId !==req.userId){
         res.status(403).json({message:"unauth"})
         return 
      }
@@ -146,8 +146,8 @@ spacerouter.delete("/:spaceId",usermiddleware,async (req,res)=>{
 spacerouter.get("/all",usermiddleware,async (req,res)=>{
     const spaces=await client.space.findMany({
       where:{
-        //@ts-ignore
-        creatorid:req.userId!
+     
+        creatorId:req.userId!
       }
     })
 
@@ -174,8 +174,8 @@ spacerouter.post("/element",usermiddleware,async (req,res)=> {
                 const space=await client.space.findUnique({
                   where:{
                     id:parsedData.data.spaceId,
-                      //@ts-ignore
-                    creatorid:req.userId!
+                
+                    creatorId:req.userId!
                   },select:{
                     width:true,
                     height:true 
@@ -195,8 +195,8 @@ spacerouter.post("/element",usermiddleware,async (req,res)=> {
            
            await client.spaceElement.create({
             data:{
-              spaceid:req.body.spaceId,
-              elementid:req.body.elementId,
+              spaceId:req.body.spaceId,
+              elementId:req.body.elementId,
               x:req.body.x,
               y:req.body.y
             }
@@ -243,3 +243,5 @@ spacerouter.get("/:spaceId", async (req,res)=>{
        })),
     })
 })
+
+

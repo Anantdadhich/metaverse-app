@@ -17,7 +17,7 @@ userrouter.post("/metadata",usermiddleware,async (req,res)=>{
     try {
         await client.user.update({
             where:{
-                //@ts-ignore
+              
                id:req.userId
             },data:{
                 avatarId:parsedData.data.avatarId
@@ -57,3 +57,6 @@ userrouter.post("/metadata/bulk",async (req,res)=>{
     })
    
 })
+
+
+      

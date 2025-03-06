@@ -21,7 +21,7 @@ export const adminmiddleware=(req:Request,res:Response,next:NextFunction)=>{
             res.status(403).json({message:"unauuthori"})
             return
         }
-      //@ts-ignore
+    
         req.userId=decoded.userId
         next()
 
@@ -30,4 +30,3 @@ export const adminmiddleware=(req:Request,res:Response,next:NextFunction)=>{
             return
     }
 }
-

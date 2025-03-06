@@ -17,7 +17,7 @@ export const usermiddleware=(req:Request,res:Response,next:NextFunction) =>  {
 
        try {
          const decoded=jwt.verify(token,JWT_PASSWORD) as {role:string,userId:string}
-         //@ts-ignore
+         
          req.userId=decoded.userId
          next()
        } catch (error) {
@@ -25,3 +25,5 @@ export const usermiddleware=(req:Request,res:Response,next:NextFunction) =>  {
           return 
        }
 }
+
+

@@ -82,12 +82,12 @@ adminrouter.post("/map",async (req,res)=>{
      const map=await client.map.create({
         data:{
             name:parsedData.data.name,
-            widht:parseInt(parsedData.data.dimensions),
+            width:parseInt(parsedData.data.dimensions),
             height:parseInt(parsedData.data.dimensions),
             thumbnail:parsedData.data.thumbnail,
             mapelements:{
                 create:parsedData.data.defaultElements.map(m => ({
-                    elementid:m.elementid,
+                    elementId:m.elementid,
                     x:m.x,
                     y:m.y
                 }))
@@ -103,3 +103,4 @@ adminrouter.post("/map",async (req,res)=>{
      })
 
 })
+ 
