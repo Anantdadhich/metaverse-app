@@ -6,77 +6,55 @@ import client from "@repo/db/client"
 export const spacerouter=Router()
 
 spacerouter.post("/",usermiddleware,async(req,res)=>{
-  console.log("endpoint")
+  console.log("endpoint", req.body);
 
   const parsedData=CreateSpaceSchema.safeParse(req.body);
 
   if(!parsedData.success){
      console.log(JSON.stringify(parsedData))
-     res.status(400).json({messgae:"validation failed"})
-       return 
+     res.status(400).json({message:"validation failed"})
+     return 
+  }
+
+  if (!parsedData.data.mapId){
+    // Handle case where width and height are sent directly
+    let width = 20; // Default values
+    let height = 15;
+    
+    if (parsedData.data.width && parsedData.data.height) {
+      // If width and height are directly provided in the request
+      width = parsedData.data.width;
+      height = parsedData.data.height;
+    } else if (parsedData.data.dimensions) {
+      // If dimensions string is provided
+      const dimensions = parsedData.data.dimensions.split("x");
+      width = parseInt(dimensions[0]) || 20;
+      height = parseInt(dimensions[1]) || 15;
     }
 
-    if (!parsedData.data.mapId){
-        const space=await client.space.create({
-              data:{
-                name:parsedData.data.name,
-                width:parseInt(parsedData.data.dimensions.split("x")[0]),
-                height:parseInt(parsedData.data.dimensions.split("x")[1]),
-               
-                creatorId:req.userId!
-              }
-        })
-
-        res.json({spaceid:space.id})
-        return ;
-    }
-     const map=await client.map.findFirst({
-        where:{
-            id:parsedData.data.mapId
-        },select:{
-            mapelements:true,
-            height:true,
-            width:true
+    try {
+      const space=await client.space.create({
+        data:{
+          name:parsedData.data.name,
+          width: width,
+          height: height,
+          creatorId:req.userId!
         }
-     })
+      });
 
-     console.log("after")
-     if(!map){
-        res.status(400).json({messgae:"map not found"})
-        return
-
-     }
-
-     console.log(map?.mapelements.length);
-
-
-
-     let space=await client.$transaction(async ()=>{
-        const space=await client.space.create({
-            data:{
-              name:parsedData.data.name,
-              width:map.width,
-              height:map.height,
-      
-              creatorId:req.userId!,
-              
-            }
-        });
-
-        await client.spaceElement.createMany({
-            data:map.mapelements.map(e => ({
-              spaceId:space.id,
-              elementId:e.elementId,
-              x:e.x!,
-              y:e.y!
-            }))
-        })
-        return  space;
-     })
-
-     console.log("space created");
-     res.json({spaceId:space.id});
-})
+      res.json({
+        spaceId: space.id,
+        space: space  // Include both formats for compatibility
+      });
+    } catch (error) {
+      console.error("Error creating space:", error);
+      res.status(500).json({message:"Failed to create space"});
+    }
+    return;
+  }
+  
+  // Rest of your existing code for handling mapId case...
+});
 
 spacerouter.delete("/element",usermiddleware,async (req,res)=>{
       const parsedData=DeleteElementSchema.safeParse(req.body)
@@ -206,7 +184,7 @@ spacerouter.post("/element",usermiddleware,async (req,res)=> {
            res.json({message:"Element Added"})
 })
 
-
+/*
 spacerouter.get("/:spaceId", async (req,res)=>{
     const space =await client.space.findUnique({
       where:{
@@ -245,3 +223,51 @@ spacerouter.get("/:spaceId", async (req,res)=>{
 })
 
 
+*/
+spacerouter.get("/:spaceId", async (req,res)=>{
+  try {
+    const space = await client.space.findUnique({
+      where: {
+        id: req.params.spaceId
+      },
+      include: {
+        elements: {
+          include: {
+            element: true
+          }
+        }
+      }
+    });
+
+    if (!space) {
+      res.status(404).json({message: "Space not found"});
+      return;
+    }
+
+    // Format the response in a more client-friendly way
+    res.json({
+      id: space.id,
+      name: space.name,
+      dimensions: `${space.width}*${space.height}`,
+      width: space.width,
+      height: space.height,
+      creatorId: space.creatorId,
+      elements: space.elements.map(e => ({
+        id: e.id,
+        x: e.x,
+        y: e.y,
+        elementId: e.elementId,
+        elements: {
+          id: e.element.id,
+          imageUrl: e.element.imageUrl,
+          width: e.element.width,
+          height: e.element.height,
+          static: e.element.static
+        }
+      }))
+    });
+  } catch (error) {
+    console.error("Error fetching space:", error);
+    res.status(500).json({message: "Server error"});
+  }
+});

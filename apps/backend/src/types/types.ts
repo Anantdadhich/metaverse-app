@@ -1,23 +1,30 @@
 import z from "zod"
 
+export const signupschema = z.object({
+    username: z.string(),
+    email: z.string().email(),
+    password: z.string().min(6),
+    type: z.enum(["user", "admin"]).default("user")
+});
 
-export const signupschema=z.object({
-    username:z.string(),
-    password:z.string(),
-    type:z.enum(["user","admin"])
-})
+export const signinschema = z.object({
+    email: z.string().email(),
+    password: z.string()
+});
 
-export const signinschema=z.object({
-    username:z.string(),
-    password:z.string()
-})
-
-export const CreateSpaceSchema=z.object({
-    name:z.string(),
-    dimensions:z.string().regex(/^[0-9]{1,4}x[0-9]{1,4}$/),
-    mapId:z.string().optional(),
-
-})
+export const CreateSpaceSchema = z.object({
+    name: z.string().min(1),
+    // Allow either dimensions as a string OR width and height as numbers
+    dimensions: z.string().optional(),
+    width: z.number().optional(),
+    height: z.number().optional(),
+    mapId: z.string().optional()
+  }).refine(data => {
+    // Ensure either dimensions OR (width AND height) are provided
+    return (data.dimensions !== undefined) || (data.width !== undefined && data.height !== undefined);
+  }, {
+    message: "Either dimensions or both width and height must be provided"
+  });
 
 
 export const createElementSchema=z.object({
